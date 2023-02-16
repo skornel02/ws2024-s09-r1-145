@@ -1,0 +1,3 @@
+[submodule "upstream-task"]
+	path = Task
+	url = https://github.com/skillsit-hu/ws2024-s09-hu-r1
