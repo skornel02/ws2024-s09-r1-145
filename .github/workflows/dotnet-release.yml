@@ -28,4 +28,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/v')
       with:
-        files: Release/API.exe appsettings.json
+        files: |
+          Release/API.exe 
+          Release/appsettings.json
