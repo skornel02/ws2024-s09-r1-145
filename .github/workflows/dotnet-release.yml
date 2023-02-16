@@ -3,9 +3,7 @@
 
 name: .NET Release
 
-on:
-  push:
-    branches: [ "main" ]
+on: push
 
 permissions: 
   contents: write  
