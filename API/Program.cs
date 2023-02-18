@@ -11,7 +11,7 @@ namespace API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddSingleton<IAuthenticationService>((_) => new HardcodedAuthenticationService());
+            builder.Services.AddTransient<IAuthenticationService, HardcodedAuthenticationService>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
