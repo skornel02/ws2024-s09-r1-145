@@ -1,8 +1,7 @@
-﻿namespace Domain.Services
+﻿namespace Domain.Services;
+
+public interface IAuthenticationService
 {
-    public interface IAuthenticationService
-    {
-        public bool UsernameExists(string username);
-        public bool ValidatePassword(string username, string password);
-    }
+    public bool UsernameExists(string username);
+    public bool ValidatePassword(string username, string password);
 }
