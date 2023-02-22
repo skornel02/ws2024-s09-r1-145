@@ -4,28 +4,60 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<DebugType>embedded</DebugType>
-	<PublishSingleFile>true</PublishSingleFile>
-	<SelfContained>true</SelfContained>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-	<PublishReadyToRun>true</PublishReadyToRun>
+    <DebugType>embedded</DebugType>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <SpaProxyServerUrl>http://localhost:1420</SpaProxyServerUrl>
+    <SpaProxyLaunchCommand>pnpm dev</SpaProxyLaunchCommand>
+    <SpaRoot>../Frontend/</SpaRoot>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MySql.EntityFrameworkCore" Version="7.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
-	
+
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build"
+    Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'"
+      Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Message Importance="high"
+      Text="Restoring dependencies using 'pnpm'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm install --frozen-lockfile" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Remove="$(SpaRoot)build\**" />
+    <Content Remove="$(SpaRoot)build\**" />
+    <DistFiles Include="$(SpaRoot)build\**" />
+    <EmbeddedResource Include="$(SpaRoot)build\**">
+      <Link>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <LogicalName>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <None Remove="$(SpaRoot)build\**" />
+  </ItemGroup>
+
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+    <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm install --frozen-lockfile" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="pnpm build" />
+  </Target>
+
 </Project>
