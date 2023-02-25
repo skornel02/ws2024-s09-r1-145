@@ -33,7 +33,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "hu.skornel02.ubmarathon",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -62,7 +62,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "Frontend",
+        "title": "UB Planner",
         "width": 800
       }
     ]
