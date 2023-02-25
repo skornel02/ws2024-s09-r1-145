@@ -38,12 +38,9 @@ jobs:
       run: pnpm build
       working-directory: ./Frontend
       
-    - name: Build the app
-      uses: tauri-apps/tauri-action@v0
-      with:
-        projectPath: ./Frontend
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build frontend
+      run: pnpm tauri build
+      working-directory: ./Frontend
   
     - name: Restore dependencies backend
       run: dotnet restore
