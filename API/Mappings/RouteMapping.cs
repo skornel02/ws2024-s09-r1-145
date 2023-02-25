@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Domain.Data;
 using Domain.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Mappings;
@@ -10,7 +10,7 @@ public static class RouteMapping
 {
     public static void MapRoutes(this WebApplication app)
     {
-        app.MapGet("/api/v1/routes", ([FromServices] IRouteService service, [FromServices] IMapper mapper) =>
+        app.MapGet("/api/v1/routes", [AllowAnonymous] ([FromServices] IRouteService service, [FromServices] IMapper mapper) =>
         {
             var routes = service.GetRoutes();
             var sorted = service.SortRoutes(routes);

@@ -1,8 +1,10 @@
 
+using API.Handlers;
 using API.Mappings;
 using API.Services;
 using Domain.Profiles;
 using Domain.Services;
+using MSAuth = Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace API;
@@ -23,8 +25,23 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: "MyCorsPolicy",
+                            policy =>
+                            {
+                                policy.AllowAnyOrigin()
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod();
+                            });
+        });
+
         builder.Services.AddDbContext<ApplicationDbContext>(
             options => options.UseMySQL(builder.Configuration.GetConnectionString("Database") ?? "-"));
+
+        builder.Services.AddAuthentication("BasicAuthentication")
+            .AddScheme<MSAuth.AuthenticationSchemeOptions, BasicAuthHandler>("BasicAuthentication", null);
+        builder.Services.AddAuthorization();
 
         var app = builder.Build();
 
@@ -36,11 +53,13 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseStaticFiles();
+        app.UseCors("MyCorsPolicy");
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapAuthentication();
-
-        app.MapFallbackToFile("index.html");
+        app.MapRoutes();
+        app.MapFrontend();
 
         app.Run();
     }
@@ -49,10 +68,30 @@ public class Program
     {
         var basePath = AppDomain.CurrentDomain.BaseDirectory;
         var wwwrootPath = Path.Combine(basePath, "wwwroot");
+        var appSettingsPath = Path.Combine(basePath, "appsettings.json");
+
+        var assembly = typeof(Program).Assembly;
+
+        if (!File.Exists(appSettingsPath))
+        {
+            var resourcePath = assembly.GetManifestResourceNames()
+                .Where(rnn => rnn.Contains("appsettings.json"))
+                .First();
+
+            var fileName = resourcePath;
+            var filePath = Path.Combine(basePath, fileName);
+            var fileInfo = new FileInfo(filePath);
+            using var stream = File.Create(filePath);
+            using var resourceStream = assembly.GetManifestResourceStream(resourcePath);
+
+            if (stream != null && resourceStream != null)
+            {
+                await resourceStream.CopyToAsync(stream);
+            }
+        }
 
         if (!Directory.Exists(wwwrootPath))
         {
-            var assembly = typeof(Program).Assembly;
             Directory.CreateDirectory(wwwrootPath);
 
             var resourcePaths = assembly.GetManifestResourceNames()
