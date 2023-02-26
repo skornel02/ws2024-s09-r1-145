@@ -1,3 +1,5 @@
+import type { Route } from "./dtos";
+
 const API_URL = !import.meta.env.DEV ? "" : "http://localhost:5136";
 
 /** * Do auth request
@@ -24,4 +26,13 @@ export const checkAuthStatus = async (token: string | null) => {
     });
 
     return response.status === 200;
+}
+
+export const getRoutes = async () => {
+    const response = await fetch(`${API_URL}/api/v1/routes`, {
+        method: "GET",
+    });
+
+    const data = await response.json() as Route[];
+    return data;
 }

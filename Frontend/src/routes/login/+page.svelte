@@ -1,6 +1,8 @@
 <script lang="ts">
   import { sendAuthRequest } from "$lib/api";
   import type { ErrorResponse } from "$lib/dtos";
+  import { toast } from "@zerodevx/svelte-toast";
+  import { goto } from "$app/navigation";
 
   let username: string;
   let password: string;
@@ -10,14 +12,36 @@
 
     console.log(authResponse);
     if (authResponse.status === 401) {
-      const errorResponse = await authResponse.json() as ErrorResponse;
+      const errorResponse = (await authResponse.json()) as ErrorResponse;
       console.log(errorResponse);
-      alert(errorResponse.error);
+      toast.push(errorResponse.error, {
+        theme: {
+          "--toastColor": "white",
+          "--toastBackground": "rgba(187, 0, 0, 0.9)",
+          "--toastBarBackground": "darkred",
+        },
+      });
     } else if (authResponse.status === 204) {
       localStorage.setItem("token", btoa(`${username}:${password}`));
-      window.location.href = "/secure";
+      toast.push("Login succeeded!", {
+        theme: {
+          "--toastColor": "white",
+          "--toastBackground": "rgba(70,190,130,0.9)",
+          "--toastBarBackground": "#2F855A",
+        },
+        duration: 2000,
+      });
+      setTimeout(() => {
+        goto("/")
+      }, 1000);
     } else {
-      alert("Something went wrong");
+      toast.push("Something went wrong", {
+        theme: {
+          "--toastColor": "white",
+          "--toastBackground": "red",
+          "--toastBarBackground": "darkred",
+        },
+      });
     }
   };
 </script>
@@ -60,8 +84,8 @@
             bind:value={password}
           />
         </div>
-        <span
-          class="link link-secondary link-hover text-right">Forgotten password</span
+        <span class="link link-secondary link-hover text-right"
+          >Forgotten password</span
         >
         <div class="form-control mt-6">
           <button

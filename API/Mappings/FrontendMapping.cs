@@ -6,11 +6,11 @@ public static class FrontendMapping
 {
     public static void MapFrontend(this WebApplication app)
     {
-        app.MapGet("/", [AllowAnonymous] () => Results.Redirect("/secure"));
+        app.MapGet("/", [AllowAnonymous] () => Results.Redirect("/index"));
         app.MapGet("/login", [AllowAnonymous] () => Results.Redirect("/login.html"));
-        app.MapGet("/secure", [AllowAnonymous] () => Results.Redirect("/secure.html"));
+        app.MapGet("/index", [AllowAnonymous] () => Results.Redirect("/index.html"));
 
         app.UseStaticFiles();
-        app.MapFallbackToFile("secure");
+        app.MapFallbackToFile("/");
     }
 }
