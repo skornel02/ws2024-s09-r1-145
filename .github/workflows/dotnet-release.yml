@@ -24,12 +24,20 @@ jobs:
     - uses: pnpm/action-setup@v2.2.4 
       with:
         version: 7.12.2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.18.0
+        cache: 'pnpm'      
+
+    - name: Install dependencies
+      run: pnpm install
     - name: Rust setup
       uses: dtolnay/rust-toolchain@stable
     - name: Rust cache
       uses: swatinem/rust-cache@v2
       with:
-        workspaces: './Frontend/src-tauri -> target'
+        workspaces: 'Frontend/src-tauri'
 
     - name: Install frontend
       run: pnpm install --frozen-lockfile
@@ -37,19 +45,19 @@ jobs:
     - name: Build Task 2 (site)
       run: pnpm build
       working-directory: ./Frontend
-      
-    - name: Build Task 3 (app)
-      run: pnpm tauri build
-      working-directory: ./Frontend
-    - name: Move application
-      run: mv "Frontend/src-tauri/target/release/Frontend.exe" "Release/UI.exe"
-  
+
     - name: Restore dependencies backend
       run: dotnet restore
     - name: Build backend
       run: dotnet build --no-restore
     - name: Publish Task 1 (api)
       run: dotnet publish -c Release -p:Publishdir=../Release
+
+    - name: Build Task 3 (app)
+      run: pnpm tauri build
+      working-directory: ./Frontend
+    - name: Move application
+      run: mv "./Frontend/src-tauri/target/release/Frontend.exe" "./Release/UI.exe"
 
     - name: Release
       uses: softprops/action-gh-release@v1
