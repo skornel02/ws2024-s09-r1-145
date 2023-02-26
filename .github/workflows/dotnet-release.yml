@@ -31,8 +31,6 @@ jobs:
         cache: 'pnpm'
         cache-dependency-path: Frontend/pnpm-lock.yaml
 
-    - name: Install dependencies
-      run: pnpm install
     - name: Rust setup
       uses: dtolnay/rust-toolchain@stable
     - name: Rust cache
