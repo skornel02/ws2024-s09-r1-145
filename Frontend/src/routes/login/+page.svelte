@@ -8,41 +8,44 @@
   let password: string;
 
   const login = async (username: string, password: string) => {
-    const authResponse = await sendAuthRequest(username, password);
+    try {
+      const authResponse = await sendAuthRequest(username, password);
 
-    console.log(authResponse);
-    if (authResponse.status === 401) {
-      const errorResponse = (await authResponse.json()) as ErrorResponse;
-      console.log(errorResponse);
-      toast.push(errorResponse.error, {
-        theme: {
-          "--toastColor": "white",
-          "--toastBackground": "rgba(187, 0, 0, 0.9)",
-          "--toastBarBackground": "darkred",
-        },
-      });
-    } else if (authResponse.status === 204) {
-      localStorage.setItem("token", btoa(`${username}:${password}`));
-      toast.push("Login succeeded!", {
-        theme: {
-          "--toastColor": "white",
-          "--toastBackground": "rgba(70,190,130,0.9)",
-          "--toastBarBackground": "#2F855A",
-        },
-        duration: 2000,
-      });
-      setTimeout(() => {
-        goto("/")
-      }, 1000);
-    } else {
-      toast.push("Something went wrong", {
-        theme: {
-          "--toastColor": "white",
-          "--toastBackground": "red",
-          "--toastBarBackground": "darkred",
-        },
-      });
+      console.log(authResponse);
+      if (authResponse.status === 401) {
+        const errorResponse = (await authResponse.json()) as ErrorResponse;
+        console.log(errorResponse);
+        toast.push(errorResponse.error, {
+          theme: {
+            "--toastColor": "white",
+            "--toastBackground": "rgba(187, 0, 0, 0.9)",
+            "--toastBarBackground": "darkred",
+          },
+        });
+      } else if (authResponse.status === 204) {
+        localStorage.setItem("token", btoa(`${username}:${password}`));
+        toast.push("Login succeeded!", {
+          theme: {
+            "--toastColor": "white",
+            "--toastBackground": "rgba(70,190,130,0.9)",
+            "--toastBarBackground": "#2F855A",
+          },
+          duration: 2000,
+        });
+        setTimeout(() => {
+          goto("/");
+        }, 1000);
+      }
+    } catch (e) {
+      console.error(e);
     }
+    toast.push("Something went wrong", {
+      theme: {
+        "--toastColor": "white",
+        "--toastBackground": "red",
+        "--toastBarBackground": "darkred",
+      },
+    });
   };
 </script>
 

@@ -1,6 +1,6 @@
 import type { Route } from "./dtos";
 
-const API_URL = !import.meta.env.DEV ? "" : "http://localhost:5136";
+const API_URL = !import.meta.env.DEV ? "http://localhost:5000" : "http://localhost:5136";
 
 /** * Do auth request
  * @param email Email adddress of the user

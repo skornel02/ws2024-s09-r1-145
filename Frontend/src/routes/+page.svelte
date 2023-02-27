@@ -13,7 +13,10 @@
     token = localStorage.getItem("token") ?? "-";
   }
 
-  const authStatus = checkAuthStatus(token).then((loggedIn) => {
+  const authStatus = checkAuthStatus(token).catch((err) => {
+    console.error(err);
+    return false;
+  }).then((loggedIn) => {
     if (!loggedIn && browser) {
       toast.push("Login check failed!", {
         theme: {
@@ -28,9 +31,9 @@
       }, 1000);
     }
     return loggedIn;
-  });
+  })
 
-  const routes = getRoutes().then((routes) => {
+  const routes = !browser ? undefined : getRoutes().then((routes) => {
     return routes.map((route) => {
       const nextRoute: ExtendedRoutes = {
         ...route,
@@ -55,12 +58,12 @@
     realRunners.forEach((runner) => {
       runner.totalDistance = 0;
     });
-    realRoutes.forEach((route) => {
+    realRoutes!.forEach((route) => {
       realRunners[route.runnerIndex].totalDistance += route.distance;
     });
 
     let totalTime = 0;
-    realRoutes.forEach((route) => {
+    realRoutes!.forEach((route) => {
       route.time = Math.round(
         route.distance * realRunners[route.runnerIndex].speed
       );
@@ -88,8 +91,6 @@
     localStorage.removeItem("token");
     goto("/login");
   };
-
-  updateNumbers();
 </script>
 
 {#await authStatus}
