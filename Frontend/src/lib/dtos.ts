@@ -10,7 +10,14 @@ export type Route = {
     locationName: string;
 }
 
+export type ExtendedRoutes = Route & {
+    runnerIndex: number;
+    time: number;
+    timeTotal: number;
+}
+
 export type Runner = {
+    rev: number;
     firstName: string;
     lastName: string;
     speed: number;
