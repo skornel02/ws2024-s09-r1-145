@@ -3,7 +3,10 @@
   import { browser } from "$app/environment";
   import { toast } from "@zerodevx/svelte-toast";
   import { goto } from "$app/navigation";
-  import type { Route } from "$lib/dtos";
+  import { getRunners, saveRunners } from "$lib/storage";
+  import type { ExtendedRoutes } from "$lib/dtos";
+  import RunnerRow from "$lib/runner/RunnerRow.svelte";
+  import RouteRow from "$lib/route/RouteRow.svelte";
 
   let token = "-";
   if (browser) {
@@ -27,12 +30,66 @@
     return loggedIn;
   });
 
+  const routes = getRoutes().then((routes) => {
+    return routes.map((route) => {
+      const nextRoute: ExtendedRoutes = {
+        ...route,
+        runnerIndex: 0,
+        time: 0,
+        timeTotal: 0,
+      };
+      return nextRoute;
+    });
+  });
+  const runners = getRunners(browser);
+
+  let rev = 0;
+
+  const updateNumbers = async () => {
+    console.log("Updating numbers...");
+    const realRoutes = await routes;
+    const realRunners = await runners;
+
+    console.log(realRunners);
+
+    realRunners.forEach((runner) => {
+      runner.totalDistance = 0;
+    });
+    realRoutes.forEach((route) => {
+      realRunners[route.runnerIndex].totalDistance += route.distance;
+    });
+
+    let totalTime = 0;
+    realRoutes.forEach((route) => {
+      route.time = Math.round(
+        route.distance * realRunners[route.runnerIndex].speed
+      );
+      totalTime += route.time;
+      route.timeTotal = totalTime;
+    });
+
+    rev++;
+  };
+
+  const save = async () => {
+    saveRunners(runners);
+    console.log("Saving...", runners);  
+    toast.push("Saved!", {
+      theme: {
+        "--toastColor": "white",
+        "--toastBackground": "green",
+        "--toastBarBackground": "darkgreen",
+      },
+      duration: 5000,
+    });
+  };
+
   const logout = async () => {
     localStorage.removeItem("token");
     goto("/login");
   };
 
-  const routes: Promise<Route[]> = getRoutes();
+  updateNumbers();
 </script>
 
 {#await authStatus}
@@ -43,69 +100,49 @@
   </div>
 {:then authStatus}
   {#if authStatus}
-    <div class="flex justify-end flex-wrap">
-      <button class="btn btn-primary" on:click={() => logout()}>Logout</button>
+    <div class="flex justify-center flex-wrap my-4">
+      <button class="btn btn-secondary mx-2" on:click={() => save()}>Save</button>
+      <button class="btn btn-info mx-2" on:click={() => updateNumbers()}
+        >Recalc</button
+      >
+      <button class="btn btn-primary mx-2" on:click={() => logout()}>Logout</button>
     </div>
 
     <div class="flex flex-col lg:flex-row">
-      <table class="table table-compact w-1/3 mx-2">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Speed</th>
-            <th>Total Distance</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#await routes}
+      <div>
+        <table class="table table-compact w-1/3 mx-2">
+          <caption>
+            Team members
+          </caption>
+          <thead>
             <tr>
-              <td colspan="5" class="text-center">
-                <progress class="progress w-full" />
-              </td>
+              <th>#</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Speed</th>
+              <th>Total Distance</th>
             </tr>
-          {:then routes}
-            {#each routes as route, i}
-              <tr>
-                <th>{i + 1}</th>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="Type here"
-                    class="input input-sm input-ghost w-28 max-w-xs"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="Type here"
-                    class="input input-sm input-ghost w-28 max-w-xs"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="6:00"
-                    min="0"
-                    class="input input-sm input-ghost w-20 max-w-xs"
-                  />
-                </td>
-                <td>
-                  <p>10</p>
-                </td>
-              </tr>
-            {/each}
-          {/await}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#key rev}
+              {#each runners as runner, i}
+                <RunnerRow {runner} index={i} />
+              {/each}
+            {/key}
+          </tbody>
+        </table>
+      </div>
       <table class="table table-compact w-2/3 mx-2">
+        <caption>
+          <div class="tooltip" data-tip="This section is NOT saved!">
+            Route assigments <sup>(i)</sup>
+          </div>
+        </caption>
         <thead>
           <tr>
             <th>#</th>
-            <th>Distance</th>
-            <th>Starting Point</th>
-            <th>Arriving Point</th>
+            <th>Dist</th>
+            <th>Start <br /> => Arrive</th>
             <th>Name</th>
             <th>Runner</th>
             <th>Time</th>
@@ -121,16 +158,9 @@
             </tr>
           {:then routes}
             {#each routes as route, i}
-              <tr>
-                <th>{i + 1}</th>
-                <td>{route.distance}</td>
-                <td>{route.startingLocation} </td>
-                <td>{route.arrivalLocation}</td>
-                <td>{route.locationName}</td>
-                <td>runner</td>
-                <td>6:00</td>
-                <td>1:06:00</td>
-              </tr>
+              {#key rev}
+                <RouteRow index={i} {route} {runners} update={updateNumbers}/>
+              {/key}
             {/each}
           {/await}
         </tbody>
@@ -140,6 +170,9 @@
 {/await}
 
 <style>
+  caption {
+    font-size: 2rem;
+  }
   td {
     font-size: small;
   }
