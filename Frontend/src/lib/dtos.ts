@@ -17,7 +17,6 @@ export type ExtendedRoutes = Route & {
 }
 
 export type Runner = {
-    rev: number;
     firstName: string;
     lastName: string;
     speed: number;

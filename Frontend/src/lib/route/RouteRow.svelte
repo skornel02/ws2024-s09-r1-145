@@ -16,7 +16,9 @@
   <td>
     <select class="select select-ghost w-36 max-w xs" bind:value={route.runnerIndex} on:change={update}>
       {#each runners as runner, i}
-        <option value={i}>{runner.firstName} {runner.lastName}</option>
+        {#if !(runner.firstName === "" &&  runner.lastName === "")}
+          <option value={i}>{runner.firstName} {runner.lastName}</option>          
+        {/if}
       {/each}
     </select>
   </td>

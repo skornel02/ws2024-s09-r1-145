@@ -1,4 +1,3 @@
-
 using API.Handlers;
 using API.Mappings;
 using API.Services;
@@ -36,8 +35,9 @@ public class Program
                             });
         });
 
+        var connectionString = builder.Configuration.GetConnectionString("Database") ?? "-";
         builder.Services.AddDbContext<ApplicationDbContext>(
-            options => options.UseMySQL(builder.Configuration.GetConnectionString("Database") ?? "-"));
+            options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
         builder.Services.AddAuthentication("BasicAuthentication")
             .AddScheme<MSAuth.AuthenticationSchemeOptions, BasicAuthHandler>("BasicAuthentication", null);

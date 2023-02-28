@@ -18,14 +18,18 @@ export const sendAuthRequest = async (username: string, password: string) => {
 }
 
 export const checkAuthStatus = async (token: string | null) => {
-    const response = await fetch(`${API_URL}/api/v1/auth-test`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Basic ${token}`,
-        }
-    });
+    try {
+        const response = await fetch(`${API_URL}/api/v1/auth-test`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Basic ${token}`,
+            }
+        });
 
-    return response.status === 200;
+        return response.status === 200;
+    } catch (ex) {
+        return false;
+    }
 }
 
 export const getRoutes = async () => {
