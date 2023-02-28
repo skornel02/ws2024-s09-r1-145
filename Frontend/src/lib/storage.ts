@@ -2,70 +2,60 @@ import type { Runner } from "./dtos";
 
 const defaultRunners = [
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
         totalDistance: 0,
     },
     {
-        rev: 0,
         firstName: "",
         lastName: "",
         speed: 0,
@@ -82,6 +72,9 @@ export const getRunners = (browser: boolean): Runner[] => {
         saveRunners(runners);
     } else {
         runners = JSON.parse(savedJson);
+        runners.forEach((runner) => {
+            runner.totalDistance = 0;
+        });
     }
     return runners;
 }

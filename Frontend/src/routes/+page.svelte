@@ -13,37 +13,40 @@
     token = localStorage.getItem("token") ?? "-";
   }
 
-  const authStatus = checkAuthStatus(token).catch((err) => {
-    console.error(err);
-    return false;
-  }).then((loggedIn) => {
+  const authStatus = checkAuthStatus(token).then((loggedIn) => {
     if (!loggedIn && browser) {
-      toast.push("Login check failed!", {
-        theme: {
-          "--toastColor": "white",
-          "--toastBackground": "red",
-          "--toastBarBackground": "darkred",
-        },
-        duration: 1000,
-      });
-      setTimeout(() => {
+      if (token !== "-") {
+        toast.push("Login check failed!", {
+          theme: {
+            "--toastColor": "white",
+            "--toastBackground": "red",
+            "--toastBarBackground": "darkred",
+          },
+          duration: 3000,
+        });
+        setTimeout(() => {
+          goto("/login");
+        }, 1500);
+      } else {
         goto("/login");
-      }, 1000);
+      }
     }
     return loggedIn;
-  })
-
-  const routes = !browser ? undefined : getRoutes().then((routes) => {
-    return routes.map((route) => {
-      const nextRoute: ExtendedRoutes = {
-        ...route,
-        runnerIndex: 0,
-        time: 0,
-        timeTotal: 0,
-      };
-      return nextRoute;
-    });
   });
+
+  const routes = !browser
+    ? undefined
+    : getRoutes().then((routes) => {
+        return routes.map((route) => {
+          const nextRoute: ExtendedRoutes = {
+            ...route,
+            runnerIndex: 0,
+            time: 0,
+            timeTotal: 0,
+          };
+          return nextRoute;
+        });
+      });
   const runners = getRunners(browser);
 
   let rev = 0;
@@ -64,26 +67,42 @@
 
     let totalTime = 0;
     realRoutes!.forEach((route) => {
-      route.time = Math.round(
+      let time = Math.round(
         route.distance * realRunners[route.runnerIndex].speed
       );
+      if (
+        realRunners[route.runnerIndex].firstName === "" &&
+        realRunners[route.runnerIndex].lastName === ""
+      ) {
+        time = 0;
+      }
+
+      route.time = time;
       totalTime += route.time;
       route.timeTotal = totalTime;
     });
 
     rev++;
+    toast.push("Recalculated!", {
+      theme: {
+        "--toastColor": "black",
+        "--toastBackground": "lightblue",
+        "--toastBarBackground": "blue",
+      },
+      duration: 2500,
+    });
   };
 
   const save = async () => {
     saveRunners(runners);
-    console.log("Saving...", runners);  
+    console.log("Saving...", runners);
     toast.push("Saved!", {
       theme: {
         "--toastColor": "white",
         "--toastBackground": "green",
         "--toastBarBackground": "darkgreen",
       },
-      duration: 5000,
+      duration: 2500,
     });
   };
 
@@ -91,6 +110,16 @@
     localStorage.removeItem("token");
     goto("/login");
   };
+
+  if (routes !== undefined) {
+    routes.then(() => {
+      authStatus.then((loggedIn) => {
+        if (loggedIn) {
+          updateNumbers();
+        }
+      });
+    });
+  }
 </script>
 
 {#await authStatus}
@@ -102,19 +131,21 @@
 {:then authStatus}
   {#if authStatus}
     <div class="flex justify-center flex-wrap my-4">
-      <button class="btn btn-secondary mx-2" on:click={() => save()}>Save</button>
+      <button class="btn btn-secondary mx-2" on:click={() => save()}
+        >Save</button
+      >
       <button class="btn btn-info mx-2" on:click={() => updateNumbers()}
         >Recalc</button
       >
-      <button class="btn btn-primary mx-2" on:click={() => logout()}>Logout</button>
+      <button class="btn btn-primary mx-2" on:click={() => logout()}
+        >Logout</button
+      >
     </div>
 
     <div class="flex flex-col lg:flex-row">
-      <div>
+      <div class="flex justify-center lg:block">
         <table class="table table-compact w-1/3 mx-2">
-          <caption>
-            Team members
-          </caption>
+          <caption> Team members </caption>
           <thead>
             <tr>
               <th>#</th>
@@ -127,7 +158,7 @@
           <tbody>
             {#key rev}
               {#each runners as runner, i}
-                <RunnerRow {runner} index={i} />
+                <RunnerRow {runner} index={i} update={updateNumbers} />
               {/each}
             {/key}
           </tbody>
@@ -151,19 +182,26 @@
           </tr>
         </thead>
         <tbody>
-          {#await routes}
-            <tr>
-              <td colspan="5" class="text-center">
-                <progress class="progress w-full" />
-              </td>
-            </tr>
-          {:then routes}
-            {#each routes as route, i}
-              {#key rev}
-                <RouteRow index={i} {route} {runners} update={updateNumbers}/>
-              {/key}
-            {/each}
-          {/await}
+          {#if routes !== undefined}
+            {#await routes}
+              <tr>
+                <td colspan="5" class="text-center">
+                  <progress class="progress w-full" />
+                </td>
+              </tr>
+            {:then routes}
+              {#each routes as route, i}
+                {#key rev}
+                  <RouteRow
+                    index={i}
+                    {route}
+                    {runners}
+                    update={updateNumbers}
+                  />
+                {/key}
+              {/each}
+            {/await}
+          {/if}
         </tbody>
       </table>
     </div>

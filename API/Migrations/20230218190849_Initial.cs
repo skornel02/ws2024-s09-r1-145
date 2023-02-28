@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using MySql.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
@@ -22,8 +21,7 @@ public partial class Initial : Migration
             name: "Routes",
             columns: table => new
             {
-                Id = table.Column<int>(type: "int", nullable: false)
-                    .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                Id = table.Column<int>(type: "int", nullable: false),
                 Distance = table.Column<double>(type: "double", nullable: false),
                 StartingLocation = table.Column<string>(type: "longtext", nullable: true),
                 ArrivalLocation = table.Column<string>(type: "longtext", nullable: true),
@@ -39,8 +37,7 @@ public partial class Initial : Migration
             name: "Users",
             columns: table => new
             {
-                Id = table.Column<int>(type: "int", nullable: false)
-                    .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                Id = table.Column<int>(type: "int", nullable: false),
                 Username = table.Column<string>(type: "longtext", nullable: true),
                 Password = table.Column<string>(type: "longtext", nullable: true)
             },

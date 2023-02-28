@@ -38,15 +38,17 @@
       }
     } catch (e) {
       console.error(e);
+      toast.push("Something went wrong! ", {
+        theme: {
+          "--toastColor": "white",
+          "--toastBackground": "red",
+          "--toastBarBackground": "darkred",
+        },
+      });
     }
-    toast.push("Something went wrong", {
-      theme: {
-        "--toastColor": "white",
-        "--toastBackground": "red",
-        "--toastBarBackground": "darkred",
-      },
-    });
   };
+
+  const handleLogin = () => login(username, password);
 </script>
 
 <div class="hero min-h-screen bg-base-100">
@@ -63,39 +65,40 @@
     </div>
     <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-100">
       <div class="card-body">
-        <div class="form-control">
-          <label class="label" for="username">
-            <span class="label-text">Username</span>
-          </label>
-          <input
-            id="username"
-            type="text"
-            placeholder="username"
-            class="input input-bordered"
-            bind:value={username}
-          />
-        </div>
-        <div class="form-control">
-          <label class="label" for="password">
-            <span class="label-text">Password</span>
-          </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="password"
-            class="input input-bordered"
-            bind:value={password}
-          />
-        </div>
-        <span class="link link-secondary link-hover text-right"
-          >Forgotten password</span
-        >
-        <div class="form-control mt-6">
-          <button
-            class="btn btn-primary"
-            on:click={() => login(username, password)}>Login</button
-          >
-        </div>
+        <form on:submit|preventDefault={handleLogin}>
+          <div class="form-control">
+            <label class="label" for="username">
+              <span class="label-text">Username</span>
+            </label>
+            <input
+              id="username"
+              type="text"
+              placeholder="username"
+              class="input input-bordered"
+              bind:value={username}
+            />
+          </div>
+          <div class="form-control">
+            <label class="label" for="password">
+              <span class="label-text">Password</span>
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="password"
+              class="input input-bordered"
+              bind:value={password}
+            />
+          </div>
+          <div class="ml-auto w-max">
+            <span class="link link-secondary link-hover"
+              >Forgotten password</span
+            >
+          </div>
+          <div class="form-control mt-6">
+            <input type="submit" class="btn btn-primary" value="Login" />
+          </div>
+        </form>
       </div>
     </div>
   </div>
